@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Alice Pisa - Complete Profile System</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2E7D32">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --light-green: #66BB6A;
+            --earth-brown: #5D4037;
+            --sun-yellow: #FFB300;
+            --sky-blue: #1976D2;
+            --warning-orange: #FF8F00;
+            --danger-red: #D32F2F;
+            --calm-green: #4CAF50;
+            --worried-yellow: #FFEB3B;
+            --stressed-orange: #FF9800;
+            --desperate-red: #F44336;
+            --surface-white: #FFFFFF;
+            --background-light: #F8F9FA;
+            --text-dark: #212121;
+            --text-medium: #757575;
+            --text-light: #BDBDBD;
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --shadow-heavy: rgba(0,0,0,0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--background-light) 0%, #E8F5E8 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .screen {
+            width: 100vw;
+            min-height: 100vh;
+            display: none;
+            flex-direction: column;
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .screen.active {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .app-bar {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+            color: white;
+            padding: max(env(safe-area-inset-top), 24px) 24px 24px 24px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 20px var(--shadow-medium);
+        }
+        
+        .app-bar h1 {
+            font-size: clamp(22px, 5.5vw, 32px);
+            margin-bottom: 8px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .app-bar p {
+            font-size: clamp(13px, 3.2vw, 18px);
+            opacity: 0.95;
+            font-weight: 500;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            padding-bottom: 120px;
+        }
+        
+        .card {
+            background: var(--surface-white);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px var(--shadow-light);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-card {
+            background: linear-gradient(135deg, #E3F2FD 0%, #F3E5F5 100%);
+            border-left: 4px solid var(--sky-blue);
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-green), var(--light-green));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px var(--shadow-medium);
+        }
+        
+        .profile-avatar:hover {
+            transform: scale(1.05);
+        }
+        
+        .profile-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            background: white;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+        
+        .profile-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+        
+        .avatar-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--light-green), var(--primary-green));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        
+        .avatar-option:hover, .avatar-option.selected {
+            border-color: var(--primary-green);
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px var(--shadow-medium);
+        }
+        
+        .location-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .location-option {
+            padding: 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .location-option:hover, .location-option.selected {
+            border-color: var(--primary-green);
+            background: #E8F5E8;
+            transform: translateY(-2px);
+        }
+        
+        .location-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+        
+        .location-state {
+            font-size: 12px;
+            color: var(--text-medium);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+            color: white;
+            border: none;
+            padding: 18px 28px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            min-height: 60px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(46, 125, 50, 0.4);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            padding-bottom: max(env(safe-area-inset-bottom), 20px);
+            border-top: 1px solid rgba(224, 224, 224, 0.5);
+            display: flex;
+            gap: 16px;
+            z-index: 100;
+            box-shadow: 0 -4px 20px var(--shadow-light);
+        }
+        
+        .nav-btn {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            min-height: 56px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(46, 125, 50, 0.3);
+        }
+        
+        .nav-btn.secondary {
+            background: linear-gradient(135deg, var(--text-medium) 0%, #9E9E9E 100%);
+            box-shadow: 0 4px 16px rgba(117, 117, 117, 0.3);
+        }
+        
+        .profile-summary {
+            background: rgba(46, 125, 50, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .summary-label {
+            font-size: 14px;
+            color: var(--text-medium);
+        }
+        
+        .summary-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-green);
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .quick-action {
+            background: linear-gradient(135deg, var(--surface-white) 0%, #F8F9FA 100%);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 24px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 16px var(--shadow-light);
+        }
+        
+        .quick-action:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-green);
+            box-shadow: 0 8px 32px var(--shadow-medium);
+        }
+        
+        .quick-action-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .quick-action-text {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.3;
+            color: var(--text-dark);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(0,0,0,0.8));
+            color: white;
+            padding: 24px 28px;
+            border-radius: 20px;
+            z-index: 2000;
+            max-width: 85%;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: notificationIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes notificationIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .profile-info {
+            margin-left: 16px;
+            flex: 1;
+        }
+        
+        .profile-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+        
+        .profile-location {
+            font-size: 14px;
+            color: var(--text-medium);
+        }
+        
+        .edit-profile-btn {
+            background: var(--sky-blue);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Profile Setup Screen -->
+    <div class="screen active" id="profileSetup">
+        <div class="app-bar">
+            <h1>👤 अपनी प्रोफाइल बनाएं</h1>
+            <p>आपकी व्यक्तिगत जानकारी दर्ज करें</p>
+        </div>
+        
+        <div class="content">
+            <!-- Profile Picture & Name -->
+            <div class="card profile-card">
+                <h3 style="margin-bottom: 20px; font-size: 20px; font-weight: 700; color: var(--sky-blue);">
+                    📸 प्रोफाइल फोटो और नाम
+                </h3>
+                
+                <div class="profile-avatar" id="selectedAvatar" onclick="toggleAvatarSelector()">
+                    🧑‍🌾
+                </div>
+                
+                <div id="avatarSelector" style="display: none;">
+                    <p style="font-size: 14px; color: var(--text-medium); margin-bottom: 12px; text-align: center;">
+                        अपना अवतार चुनें:
+                    </p>
+                    <div class="avatar-selector">
+                        <div class="avatar-option selected" onclick="selectAvatar('🧑‍🌾')">🧑‍🌾</div>
+                        <div class="avatar-option" onclick="selectAvatar('👨‍🌾')">👨‍🌾</div>
+                        <div class="avatar-option" onclick="selectAvatar('👩‍🌾')">👩‍🌾</div>
+                        <div class="avatar-option" onclick="selectAvatar('🧔‍♂️')">🧔‍♂️</div>
+                        <div class="avatar-option" onclick="selectAvatar('👴')">👴</div>
+                        <div class="avatar-option" onclick="selectAvatar('👵')">👵</div>
+                        <div class="avatar-option" onclick="selectAvatar('🧑')">🧑</div>
+                        <div class="avatar-option" onclick="selectAvatar('👦')">👦</div>
+                    </div>
+                </div>
+                
+                <input type="text" class="profile-input" id="farmerName" placeholder="आपका नाम लिखें" value="राम कुमार">
+                <div style="font-size: 12px; color: var(--text-medium);">
+                    जैसे: राम कुमार, सीता देवी, अर्जुन सिंह
+                </div>
+            </div>
+
+            <!-- Location Selection -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">
+                    📍 आप कहाँ रहते हैं?
+                </h3>
+                
+                <input type="text" class="profile-input" id="customLocation" placeholder="अपना गाँव/शहर का नाम लिखें" value="">
+                
+                <p style="font-size: 14px; color: var(--text-medium); margin: 16px 0;">
+                    या फिर नीचे से चुनें:
+                </p>
+                
+                <div class="location-selector">
+                    <div class="location-option" onclick="selectLocation('रामपुर', 'उत्तर प्रदेश')">
+                        <div class="location-name">रामपुर</div>
+                        <div class="location-state">उत्तर प्रदेश</div>
+                    </div>
+                    <div class="location-option" onclick="selectLocation('कृष्णनगर', 'पंजाब')">
+                        <div class="location-name">कृष्णनगर</div>
+                        <div class="location-state">पंजाब</div>
+                    </div>
+                    <div class="location-option" onclick="selectLocation('गोकुलपुर', 'हरियाणा')">
+                        <div class="location-name">गोकुलपुर</div>
+                        <div class="location-state">हरियाणा</div>
+                    </div>
+                    <div class="location-option" onclick="selectLocation('शिवपुर', 'मध्य प्रदेश')">
+                        <div class="location-name">शिवपुर</div>
+                        <div class="location-state">मध्य प्रदेश</div>
+                    </div>
+                    <div class="location-option" onclick="selectLocation('सरस्वतीपुर', 'राजस्थान')">
+                        <div class="location-name">सरस्वतीपुर</div>
+                        <div class="location-state">राजस्थान</div>
+                    </div>
+                    <div class="location-option" onclick="selectLocation('लक्ष्मीपुर', 'बिहार')">
+                        <div class="location-name">लक्ष्मीपुर</div>
+                        <div class="location-state">बिहार</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Age & Experience -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">
+                    👥 व्यक्तिगत जानकारी
+                </h3>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: block;">
+                        🎂 आपकी उम्र:
+                    </label>
+                    <input type="number" class="profile-input" id="farmerAge" placeholder="25" value="35" min="18" max="80">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: block;">
+                        🚜 खेती का अनुभव (साल में):
+                    </label>
+                    <input type="number" class="profile-input" id="farmingExperience" placeholder="10" value="5" min="0" max="50">
+                </div>
+            </div>
+
+            <!-- Family Information -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">
+                    👨‍👩‍👧‍👦 पारिवारिक जानकारी
+                </h3>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: block;">
+                        👥 परिवार में कितने सदस्य हैं?
+                    </label>
+                    <input type="number" class="profile-input" id="familyMembers" placeholder="4" value="4" min="1" max="15">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: block;">
+                        🎓 बच्चों की संख्या:
+                    </label>
+                    <input type="number" class="profile-input" id="children" placeholder="2" value="2" min="0" max="10">
+                </div>
+            </div>
+
+            <!-- Profile Summary -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">
+                    📋 प्रोफाइल सारांश
+                </h3>
+                
+                <div class="profile-summary">
+                    <div class="summary-row">
+                        <span class="summary-label">👤 नाम:</span>
+                        <span class="summary-value" id="summaryName">राम कुमार</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">📍 स्थान:</span>
+                        <span class="summary-value" id="summaryLocation">रामपुर</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">🎂 उम्र:</span>
+                        <span class="summary-value" id="summaryAge">35 साल</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">🚜 अनुभव:</span>
+                        <span class="summary-value" id="summaryExperience">5 साल</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">👨‍👩‍👧‍👦 परिवार:</span>
+                        <span class="summary-value" id="summaryFamily">4 सदस्य</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 16px; padding: 12px; background: #E8F5E8; border-radius: 12px;">
+                    <p style="font-size: 12px; color: var(--primary-green); font-weight: 600;" id="profileAdvice">
+                        💡 अनुभवी किसान हैं। मध्यम जोखिम वाली फसलें लगा सकते हैं।
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn" onclick="saveProfileAndContinue()">💾 प्रोफाइल सेव करें</button>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div class="screen" id="dashboard">
+        <div class="app-bar">
+            <h1 id="dashboardName">राम कुमार</h1>
+            <p id="dashboardLocation">रामपुर • खरीफ़ (Kharif) • वर्ष 1</p>
+        </div>
+        
+        <div class="content">
+            <!-- Profile Header Card -->
+            <div class="card profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="dashboardAvatar" style="width: 60px; height: 60px; font-size: 24px;">
+                        🧑‍🌾
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="dashboardProfileName">राम कुमार</div>
+                        <div class="profile-location" id="dashboardProfileLocation">रामपुर • 35 साल • 5 साल अनुभव</div>
+                    </div>
+                    <button class="edit-profile-btn" onclick="editProfile()">✏️ Edit</button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 16px;">
+                    <div style="text-align: center; padding: 12px; background: rgba(46, 125, 50, 0.1); border-radius: 12px;">
+                        <div style="font-size: 20px; margin-bottom: 4px;">👨‍👩‍👧‍👦</div>
+                        <div style="font-size: 12px; color: var(--text-medium);" id="dashboardFamily">4 सदस्य</div>
+                    </div>
+                    <div style="text-align: center; padding: 12px; background: rgba(46, 125, 50, 0.1); border-radius: 12px;">
+                        <div style="font-size: 20px; margin-bottom: 4px;">🚜</div>
+                        <div style="font-size: 12px; color: var(--text-medium);" id="dashboardExperience">5 साल</div>
+                    </div>
+                    <div style="text-align: center; padding: 12px; background: rgba(46, 125, 50, 0.1); border-radius: 12px;">
+                        <div style="font-size: 20px; margin-bottom: 4px;">🎂</div>
+                        <div style="font-size: 12px; color: var(--text-medium);" id="dashboardAge">35 साल</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <h3 style="margin-bottom: 20px; font-size: 18px; font-weight: 700;">⚡ त्वरित कार्य</h3>
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="editProfile()">
+                        <div class="quick-action-icon">👤</div>
+                        <div class="quick-action-text">प्रोफाइल<br>एडिट करें</div>
+                    </div>
+                    <div class="quick-action" onclick="showProfileStats()">
+                        <div class="quick-action-icon">📊</div>
+                        <div class="quick-action-text">आंकड़े<br>देखें</div>
+                    </div>
+                    <div class="quick-action" onclick="shareProfile()">
+                        <div class="quick-action-icon">📤</div>
+                        <div class="quick-action-text">प्रोफाइल<br>शेयर करें</div>
+                    </div>
+                    <div class="quick-action" onclick="resetProfile()">
+                        <div class="quick-action-icon">🔄</div>
+                        <div class="quick-action-text">नई प्रोफाइल<br>बनाएं</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personalized Tips -->
+            <div class="card" style="background: linear-gradient(135deg, #E8F5E8 0%, #F1F8E9 100%);">
+                <h3 style="margin-bottom: 20px; font-size: 18px; font-weight: 700; color: var(--primary-green);">💡 आपके लिए खास सुझाव</h3>
+                <div id="personalizedTips">
+                    <div style="margin-bottom: 12px; display: flex; align-items: start;">
+                        <span style="color: var(--primary-green); margin-right: 8px; font-size: 16px;">✓</span>
+                        <span style="font-weight: 500;">आपके अनुभव के अनुसार धान और मक्का दोनों लगा सकते हैं</span>
+                    </div>
+                    <div style="margin-bottom: 12px; display: flex; align-items: start;">
+                        <span style="color: var(--primary-green); margin-right: 8px; font-size: 16px;">✓</span>
+                        <span style="font-weight: 500;">4 सदस्यों के परिवार के लिए कम से कम ₹5000 आपातकाल फंड रखें</span>
+                    </div>
+                    <div style="display: flex; align-items: start;">
+                        <span style="color: var(--primary-green); margin-right: 8px; font-size: 16px;">✓</span>
+                        <span style="font-weight: 500;">बच्चों की पढ़ाई के लिए अलग से बचत करें</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userProfile = {
+            name: 'राम कुमार',
+            avatar: '🧑‍🌾',
+            location: 'रामपुर',
+            age: 35,
+            experience: 5,
+            familyMembers: 4,
+            children: 2,
+            createdAt: new Date().toISOString()
+        };
+
+        function toggleAvatarSelector() {
+            const selector = document.getElementById('avatarSelector');
+            selector.style.display = selector.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function selectAvatar(emoji) {
+            // Remove selection from all avatars
+            document.querySelectorAll('.avatar-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Select clicked avatar
+            event.target.classList.add('selected');
+            
+            // Update main avatar
+            document.getElementById('selectedAvatar').textContent = emoji;
+            userProfile.avatar = emoji;
+            
+            // Hide selector
+            document.getElementById('avatarSelector').style.display = 'none';
+            
+            speak(`${getAvatarName(emoji)} अवतार चुना गया।`);
+        }
+
+        function getAvatarName(emoji) {
+            const names = {
+                '🧑‍🌾': 'किसान',
+                '👨‍🌾': 'पुरुष किसान',
+                '👩‍🌾': 'महिला किसान',
+                '🧔‍♂️': 'दाढ़ी वाले किसान',
+                '👴': 'बुजुर्ग किसान',
+                '👵': 'बुजुर्ग महिला किसान',
+                '🧑': 'युवा किसान',
+                '👦': 'नया किसान'
+            };
+            return names[emoji] || 'किसान';
+        }
+
+        function selectLocation(village, state) {
+            // Remove selection from all locations
+            document.querySelectorAll('.location-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Select clicked location
+            event.target.closest('.location-option').classList.add('selected');
+            
+            // Update custom location input
+            document.getElementById('customLocation').value = `${village}, ${state}`;
+            userProfile.location = village;
+            
+            updateProfileSummary();
+            speak(`${village}, ${state} चुना गया।`);
+        }
+
+        function updateProfileSummary() {
+            const name = document.getElementById('farmerName').value || 'राम कुमार';
+            const location = document.getElementById('customLocation').value || userProfile.location;
+            const age = document.getElementById('farmerAge').value || 35;
+            const experience = document.getElementById('farmingExperience').value || 5;
+            const family = document.getElementById('familyMembers').value || 4;
+            
+            // Update summary display
+            document.getElementById('summaryName').textContent = name;
+            document.getElementById('summaryLocation').textContent = location.split(',')[0];
+            document.getElementById('summaryAge').textContent = `${age} साल`;
+            document.getElementById('summaryExperience').textContent = `${experience} साल`;
+            document.getElementById('summaryFamily').textContent = `${family} सदस्य`;
+            
+            // Update profile object
+            userProfile.name = name;
+            userProfile.location = location.split(',')[0];
+            userProfile.age = parseInt(age);
+            userProfile.experience = parseInt(experience);
+            userProfile.familyMembers = parseInt(family);
+            userProfile.children = parseInt(document.getElementById('children').value) || 2;
+            
+            // Generate personalized advice
+            let advice = '';
+            if (experience >= 10) {
+                advice = '💡 बहुत अनुभवी किसान हैं। उच्च जोखिम वाली फसलें भी लगा सकते हैं।';
+            } else if (experience >= 5) {
+                advice = '💡 अनुभवी किसान हैं। मध्यम जोखिम वाली फसलें लगा सकते हैं।';
+            } else if (experience >= 2) {
+                advice = '💡 कुछ अनुभव है। सुरक्षित फसलों से शुरुआत करें।';
+            } else {
+                advice = '💡 नए किसान हैं। कम जोखिम वाली फसलें चुनें और सीखते रहें।';
+            }
+            
+            document.getElementById('profileAdvice').textContent = advice;
+        }
+
+        function saveProfileAndContinue() {
+            updateProfileSummary();
+            
+            if (!userProfile.name.trim()) {
+                speak('कृपया अपना नाम भरें।');
+                return;
+            }
+            
+            if (!userProfile.location.trim()) {
+                speak('कृपया अपना स्थान भरें।');
+                return;
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('alicePisaProfile', JSON.stringify(userProfile));
+            
+            // Update dashboard
+            updateDashboard();
+            
+            // Show dashboard
+            showScreen('dashboard');
+            
+            speak(`नमस्ते ${userProfile.name} जी! आपकी प्रोफाइल सेव हो गई है। अब खेती शुरू करते हैं।`);
+        }
+
+        function updateDashboard() {
+            document.getElementById('dashboardName').textContent = userProfile.name;
+            document.getElementById('dashboardLocation').textContent = `${userProfile.location} • खरीफ़ (Kharif) • वर्ष 1`;
+            document.getElementById('dashboardAvatar').textContent = userProfile.avatar;
+            document.getElementById('dashboardProfileName').textContent = userProfile.name;
+            document.getElementById('dashboardProfileLocation').textContent = `${userProfile.location} • ${userProfile.age} साल • ${userProfile.experience} साल अनुभव`;
+            document.getElementById('dashboardFamily').textContent = `${userProfile.familyMembers} सदस्य`;
+            document.getElementById('dashboardExperience').textContent = `${userProfile.experience} साल`;
+            document.getElementById('dashboardAge').textContent = `${userProfile.age} साल`;
+            
+            updatePersonalizedTips();
+        }
+
+        function updatePersonalizedTips() {
+            const tips = [];
+            
+            // Experience-based tips
+            if (userProfile.experience >= 5) {
+                tips.push('आपके अनुभव के अनुसार धान और मक्का दोनों लगा सकते हैं');
+            } else {
+                tips.push('नए किसान हैं, पहले धान से शुरुआत करें');
+            }
+            
+            // Family-based tips
+            const emergencyFund = userProfile.familyMembers * 1250;
+            tips.push(`${userProfile.familyMembers} सदस्यों के परिवार के लिए कम से कम ₹${emergencyFund} आपातकाल फंड रखें`);
+            
+            // Children-based tips
+            if (userProfile.children > 0) {
+                tips.push('बच्चों की पढ़ाई के लिए अलग से बचत करें');
+            }
+            
+            // Age-based tips
+            if (userProfile.age > 50) {
+                tips.push('स्वास्थ्य बीमा जरूर कराएं');
+            }
+            
+            // Location-based tips (sample)
+            if (userProfile.location.includes('पंजाब') || userProfile.location.includes('हरियाणा')) {
+                tips.push('आपके क्षेत्र में गेहूं और धान की अच्छी पैदावार होती है');
+            }
+            
+            const tipsContainer = document.getElementById('personalizedTips');
+            tipsContainer.innerHTML = tips.slice(0, 3).map(tip => `
+                <div style="margin-bottom: 12px; display: flex; align-items: start;">
+                    <span style="color: var(--primary-green); margin-right: 8px; font-size: 16px;">✓</span>
+                    <span style="font-weight: 500;">${tip}</span>
+                </div>
+            `).join('');
+        }
+
+        function editProfile() {
+            // Populate form with current data
+            document.getElementById('farmerName').value = userProfile.name;
+            document.getElementById('customLocation').value = userProfile.location;
+            document.getElementById('farmerAge').value = userProfile.age;
+            document.getElementById('farmingExperience').value = userProfile.experience;
+            document.getElementById('familyMembers').value = userProfile.familyMembers;
+            document.getElementById('children').value = userProfile.children;
+            document.getElementById('selectedAvatar').textContent = userProfile.avatar;
+            
+            showScreen('profileSetup');
+            speak('प्रोफाइल एडिट मोड में खुल गया। बदलाव करके सेव करें।');
+        }
+
+        function showProfileStats() {
+            const stats = `📊 प्रोफाइल आंकड़े:\n`;
+            const createdDate = new Date(userProfile.createdAt).toLocaleDateString('hi-IN');
+            const report = `नाम: ${userProfile.name}\nस्थान: ${userProfile.location}\nउम्र: ${userProfile.age} साल\nअनुभव: ${userProfile.experience} साल\nपरिवार: ${userProfile.familyMembers} सदस्य\nप्रोफाइल बनाई: ${createdDate}`;
+            
+            speak(stats + report);
+        }
+
+        function shareProfile() {
+            const shareText = `मैं ${userProfile.name} हूं, ${userProfile.location} से। ${userProfile.experience} साल का खेती का अनुभव है। Alice Pisa गेम खेल रहा हूं!`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Alice Pisa - मेरी प्रोफाइल',
+                    text: shareText
+                });
+            } else {
+                // Fallback for browsers without Web Share API
+                navigator.clipboard.writeText(shareText).then(() => {
+                    speak('प्रोफाइल जानकारी कॉपी हो गई। अब कहीं भी पेस्ट कर सकते हैं।');
+                });
+            }
+        }
+
+        function resetProfile() {
+            if (confirm('क्या आप वाकई नई प्रोफाइल बनाना चाहते हैं? पुरानी जानकारी मिट जाएगी।')) {
+                localStorage.removeItem('alicePisaProfile');
+                
+                // Reset to default values
+                userProfile = {
+                    name: 'राम कुमार',
+                    avatar: '🧑‍🌾',
+                    location: 'रामपुर',
+                    age: 35,
+                    experience: 5,
+                    familyMembers: 4,
+                    children: 2,
+                    createdAt: new Date().toISOString()
+                };
+                
+                showScreen('profileSetup');
+                speak('नई प्रोफाइल बनाने के लिए तैयार है। अपनी जानकारी भरें।');
+            }
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function speak(text) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 20px; margin-right: 8px;">🗣️</span>
+                    <span style="font-weight: 700;">Alice Pisa</span>
+                </div>
+                <div style="line-height: 1.4;">"${text}"</div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 4000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved profile if exists
+            const savedProfile = localStorage.getItem('alicePisaProfile');
+            if (savedProfile) {
+                userProfile = JSON.parse(savedProfile);
+                updateDashboard();
+                showScreen('dashboard');
+                speak(`नमस्ते ${userProfile.name} जी! आपकी प्रोफाइल लोड हो गई है।`);
+            } else {
+                // Add input listeners for real-time updates
+                ['farmerName', 'customLocation', 'farmerAge', 'farmingExperience', 'familyMembers', 'children'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('input', updateProfileSummary);
+                    }
+                });
+                
+                // Initial summary update
+                updateProfileSummary();
+            }
+        });
+    </script>
+</body>
+</html>

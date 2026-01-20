@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Alice Pisa - Complete Integrated System</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2E7D32">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --light-green: #66BB6A;
+            --earth-brown: #5D4037;
+            --sun-yellow: #FFB300;
+            --sky-blue: #1976D2;
+            --warning-orange: #FF8F00;
+            --danger-red: #D32F2F;
+            --calm-green: #4CAF50;
+            --worried-yellow: #FFEB3B;
+            --stressed-orange: #FF9800;
+            --desperate-red: #F44336;
+            --surface-white: #FFFFFF;
+            --background-light: #F8F9FA;
+            --text-dark: #212121;
+            --text-medium: #757575;
+            --text-light: #BDBDBD;
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --shadow-heavy: rgba(0,0,0,0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--background-light) 0%, #E8F5E8 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .screen {
+            width: 100vw;
+            min-height: 100vh;
+            display: none;
+            flex-direction: column;
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .screen.active {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .app-bar {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+            color: white;
+            padding: max(env(safe-area-inset-top), 24px) 24px 24px 24px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 20px var(--shadow-medium);
+        }
+        
+        .app-bar h1 {
+            font-size: clamp(22px, 5.5vw, 32px);
+            margin-bottom: 8px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .app-bar p {
+            font-size: clamp(13px, 3.2vw, 18px);
+            opacity: 0.95;
+            font-weight: 500;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            padding-bottom: 120px;
+        }
+        
+        .card {
+            background: var(--surface-white);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px var(--shadow-light);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-card {
+            background: linear-gradient(135deg, #E3F2FD 0%, #F3E5F5 100%);
+            border-left: 4px solid var(--sky-blue);
+        }
+        
+        .budget-setup-card {
+            background: linear-gradient(135deg, #E3F2FD 0%, #F3E5F5 100%);
+            border-left: 4px solid var(--sky-blue);
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-green), var(--light-green));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px var(--shadow-medium);
+        }
+        
+        .profile-avatar:hover {
+            transform: scale(1.05);
+        }
+        
+        .profile-input, .budget-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            background: white;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+        
+        .profile-input:focus, .budget-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+        
+        .avatar-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--light-green), var(--primary-green));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        
+        .avatar-option:hover, .avatar-option.selected {
+            border-color: var(--primary-green);
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px var(--shadow-medium);
+        }
+        
+        .location-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .location-option {
+            padding: 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .location-option:hover, .location-option.selected {
+            border-color: var(--primary-green);
+            background: #E8F5E8;
+            transform: translateY(-2px);
+        }
+        
+        .budget-presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .budget-preset {
+            padding: 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .budget-preset:hover, .budget-preset.selected {
+            border-color: var(--primary-green);
+            background: #E8F5E8;
+            transform: translateY(-2px);
+        }
+        
+        .preset-amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 4px;
+        }
+        
+        .preset-label {
+            font-size: 12px;
+            color: var(--text-medium);
+            font-weight: 500;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+            color: white;
+            border: none;
+            padding: 18px 28px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            min-height: 60px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(46, 125, 50, 0.4);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            padding-bottom: max(env(safe-area-inset-bottom), 20px);
+            border-top: 1px solid rgba(224, 224, 224, 0.5);
+            display: flex;
+            gap: 16px;
+            z-index: 100;
+            box-shadow: 0 -4px 20px var(--shadow-light);
+        }
+        
+        .nav-btn {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            min-height: 56px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(46, 125, 50, 0.3);
+        }
+        
+        .nav-btn.secondary {
+            background: linear-gradient(135deg, var(--text-medium) 0%, #9E9E9E 100%);
+            box-shadow: 0 4px 16px rgba(117, 117, 117, 0.3);
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .summary-label {
+            font-size: 14px;
+            color: var(--text-medium);
+        }
+        
+        .summary-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-green);
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .quick-action {
+            background: linear-gradient(135deg, var(--surface-white) 0%, #F8F9FA 100%);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 24px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 16px var(--shadow-light);
+        }
+        
+        .quick-action:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-green);
+            box-shadow: 0 8px 32px var(--shadow-medium);
+        }
+        
+        .quick-action-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .quick-action-text {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.3;
+            color: var(--text-dark);
+        }
+        
+        .financial-card {
+            background: linear-gradient(135deg, var(--calm-green) 0%, var(--light-green) 100%);
+            color: white;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .metric {
+            text-align: center;
+            background: rgba(255,255,255,0.15);
+            padding: 16px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-size: clamp(18px, 4.5vw, 24px);
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(0,0,0,0.8));
+            color: white;
+            padding: 24px 28px;
+            border-radius: 20px;
+            z-index: 2000;
+            max-width: 85%;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: notificationIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes notificationIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Profile Setup Screen -->
+    <div class="screen active" id="profileSetup">
+        <div class="app-bar">
+            <h1>👤 अपनी प्रोफाइल बनाएं</h1>
+            <p>आपकी व्यक्तिगत जानकारी दर्ज करें</p>
+        </div>
+        
+        <div class="content">
+            <!-- Profile Picture & Name -->
+            <div class="card profile-card">
+                <h3 style="margin-bottom: 20px; font-size: 20px; font-weight: 700; color: var(--sky-blue);">
+                    📸 प्रोफाइल फोटो और नाम
+                </h3>
+                
+                <div class="profile-avatar" id="selectedAvatar" onclick="toggleAvatarSelector()">
+                    🧑‍🌾
+                </div>
+                
+                <div id="avatarSelector" style="display: none;">
+                    <p style="font-size: 14px; color: var(--text-medium); margin-bottom: 12px; text-align: center;">
+                        अपना अवतार चुनें:
+                    </p>
+                    <div class="avatar-selector">
+                        <div class="avatar-option selected" onclick="selectAvatar('🧑‍🌾')">🧑‍🌾</div>
+                        <div class="avatar-option" onclick="selectAvatar('👨‍🌾')">👨‍🌾</div>
+                        <div class="avatar-option" onclick="selectAvatar('👩‍🌾')">👩‍🌾</div>
+                        <div class="avatar-option" onclick="selectAvatar('🧔‍♂️')">🧔‍♂️</div>
+                        <div class="avatar-option" onclick="selectAvatar('👴')">👴</div>
+                        <div class="avatar-option" onclick="selectAvatar('👵')">👵</div>
+                        <div class="avatar-option" onclick="selectAvatar('🧑')">🧑</div>
+                        <div class="avatar-option" onclick="selectAvatar('👦')">👦</div>
+                    </div>
+                </div>
+                
+                <input type="text" class="profile-input" id="farmerName" placeholder="आपका नाम लिखें" value="राम कुमार">
+                <div style="font-size: 12px; color: var(--text-medium);">
+                    जैसे: राम कुमार, सीता देवी, अर्जुन सिंह
+                </div>
+            </div>
+
+            <!-- Location Selection -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">
+                    📍 आप कहाँ रहते हैं?
+                </h3>
+                
+                <input type="text" class="profile-input" id="customLocation" placeholder="अपना गाँव/शहर का नाम लिखें" value="">
+                
+                <p style="font-size: 14px; color: var(--text-medium); margin: 16px 0;">
+                    या फिर नीचे से चुनें:
+                </p>
+                
+                <div class="location-selector">
+                    <div class="location-option" onclick="selectLocation('रामपुर', 'उत्तर प्रदेश')">
+                        <div style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">रामपुर</div>
+                        <div style="font-size: 12px; color: var(--text-medium);">उत्तर प्रदेश</div>
+                    </div>
+                    <div class="location-option" onclick="selectLocation('कृष्णनगर', 'पंजाब')">
+                        <div style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">कृष्णनगर</div>
+                        <div style="font-size: 12px; color: var(--text-medium);">पंजाब</div>
+                    </div>
+                    <div class="location-option" onclick="selectLocation('गोकुलपुर', 'हरियाणा')">
+                        <div style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">गोकुलपुर</div>
+                        <div style="font-size: 12px; color: var(--text-medium);">हरियाणा</div>
+                    </div>
+                    <div class="location-option" onclick="selectLocation('शिवपुर', 'मध्य प्रदेश')">
+                        <div style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">शिवपुर</div>
+                        <div style="font-size: 12px; color: var(--text-medium);">मध्य प्रदेश</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Age & Experience -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">
+                    👥 व्यक्तिगत जानकारी
+                </h3>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: block;">
+                        🎂 आपकी उम्र:
+                    </label>
+                    <input type="number" class="profile-input" id="farmerAge" placeholder="25" value="35" min="18" max="80">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: block;">
+                        🚜 खेती का अनुभव (साल में):
+                    </label>
+                    <input type="number" class="profile-input" id="farmingExperience" placeholder="10" value="5" min="0" max="50">
+                </div>
+            </div>
+
+            <!-- Family Information -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">
+                    👨‍👩‍👧‍👦 पारिवारिक जानकारी
+                </h3>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: block;">
+                        👥 परिवार में कितने सदस्य हैं?
+                    </label>
+                    <input type="number" class="profile-input" id="familyMembers" placeholder="4" value="4" min="1" max="15">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: block;">
+                        🎓 बच्चों की संख्या:
+                    </label>
+                    <input type="number" class="profile-input" id="children" placeholder="2" value="2" min="0" max="10">
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn" onclick="proceedToBudgetSetup()">➡️ बजट सेटअप</button>
+        </div>
+    </div>
+
+    <!-- Budget Setup Screen -->
+    <div class="screen" id="budgetSetup">
+        <div class="app-bar">
+            <h1>💰 अपना बजट सेट करें</h1>
+            <p>आपकी आर्थिक स्थिति के अनुसार खेल को customize करें</p>
+        </div>
+        
+        <div class="content">
+            <!-- Personal Budget Setup -->
+            <div class="card budget-setup-card">
+                <h3 style="margin-bottom: 20px; font-size: 20px; font-weight: 700; color: var(--sky-blue);">
+                    🏠 आपकी वर्तमान आर्थिक स्थिति
+                </h3>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="font-size: 16px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: flex; align-items: center;">
+                        💵 आपके पास कितने पैसे हैं?
+                    </div>
+                    <input type="number" class="budget-input" id="currentMoney" placeholder="15000" value="15000">
+                    <div style="font-size: 12px; color: var(--text-medium); margin-top: 4px;">
+                        जैसे: ₹5,000 से ₹50,000 तक
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="font-size: 16px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: flex; align-items: center;">
+                        🏦 आपकी बचत कितनी है?
+                    </div>
+                    <input type="number" class="budget-input" id="savings" placeholder="5000" value="5000">
+                    <div style="font-size: 12px; color: var(--text-medium); margin-top: 4px;">
+                        आपातकाल के लिए अलग रखे गए पैसे
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="font-size: 16px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: flex; align-items: center;">
+                        💳 कोई कर्ज है?
+                    </div>
+                    <input type="number" class="budget-input" id="debt" placeholder="0" value="0">
+                    <div style="font-size: 12px; color: var(--text-medium); margin-top: 4px;">
+                        अगर कोई कर्ज नहीं है तो 0 लिखें
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Presets -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">
+                    ⚡ तुरंत चुनें (Quick Presets)
+                </h3>
+                <p style="color: var(--text-medium); margin-bottom: 16px; font-size: 14px;">
+                    अपनी स्थिति के अनुसार कोई एक विकल्प चुनें
+                </p>
+                
+                <div class="budget-presets">
+                    <div class="budget-preset" onclick="setPreset('small')">
+                        <div class="preset-amount">₹8K</div>
+                        <div class="preset-label">छोटा किसान</div>
+                    </div>
+                    <div class="budget-preset selected" onclick="setPreset('medium')">
+                        <div class="preset-amount">₹15K</div>
+                        <div class="preset-label">मध्यम किसान</div>
+                    </div>
+                    <div class="budget-preset" onclick="setPreset('large')">
+                        <div class="preset-amount">₹25K</div>
+                        <div class="preset-label">बड़ा किसान</div>
+                    </div>
+                    <div class="budget-preset" onclick="setPreset('rich')">
+                        <div class="preset-amount">₹40K</div>
+                        <div class="preset-label">समृद्ध किसान</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Land Size -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">
+                    🚜 आपकी जमीन कितनी है?
+                </h3>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="font-size: 16px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: flex; align-items: center;">
+                        📏 जमीन का आकार (एकड़ में)
+                    </div>
+                    <input type="number" class="budget-input" id="landSize" placeholder="2" value="2" step="0.5" min="0.5" max="10">
+                    <div style="font-size: 12px; color: var(--text-medium); margin-top: 4px;">
+                        0.5 से 10 एकड़ तक
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combined Summary -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">
+                    📊 पूरा सारांश
+                </h3>
+                
+                <div style="background: rgba(46, 125, 50, 0.1); border-radius: 12px; padding: 16px; margin-top: 20px;">
+                    <div class="summary-row">
+                        <span class="summary-label">👤 नाम:</span>
+                        <span class="summary-value" id="summaryName">राम कुमार</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">📍 स्थान:</span>
+                        <span class="summary-value" id="summaryLocation">रामपुर</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">🎂 उम्र:</span>
+                        <span class="summary-value" id="summaryAge">35 साल</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">🚜 अनुभव:</span>
+                        <span class="summary-value" id="summaryExperience">5 साल</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">👨‍👩‍👧‍👦 परिवार:</span>
+                        <span class="summary-value" id="summaryFamily">4 सदस्य</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">💵 कुल पैसे:</span>
+                        <span class="summary-value" id="totalMoney">₹15,000</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">🏦 बचत:</span>
+                        <span class="summary-value" id="totalSavings">₹5,000</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">💳 कर्ज:</span>
+                        <span class="summary-value" id="totalDebt">₹0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">📏 जमीन:</span>
+                        <span class="summary-value" id="totalLand">2 एकड़</span>
+                    </div>
+                    <hr style="margin: 12px 0; border: none; height: 1px; background: rgba(46, 125, 50, 0.2);">
+                    <div class="summary-row">
+                        <span class="summary-label" style="font-weight: 700;">💰 कुल संपत्ति:</span>
+                        <span class="summary-value" id="netWorth" style="font-size: 18px;">₹20,000</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 16px; padding: 12px; background: #E8F5E8; border-radius: 12px;">
+                    <p style="font-size: 12px; color: var(--primary-green); font-weight: 600;" id="combinedAdvice">
+                        💡 अनुभवी किसान हैं और अच्छी आर्थिक स्थिति है। मध्यम जोखिम वाली फसलें लगा सकते हैं।
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn secondary" onclick="showScreen('profileSetup')">⬅️ वापस</button>
+            <button class="nav-btn" onclick="startGameWithCompleteSetup()">🎮 खेल शुरू करें</button>
+        </div>
+    </div>
+    <!-- Dashboard Screen -->
+    <div class="screen" id="dashboard">
+        <div class="app-bar">
+            <h1 id="dashboardName">राम कुमार</h1>
+            <p id="dashboardLocation">रामपुर • खरीफ़ (Kharif) • वर्ष 1</p>
+        </div>
+        
+        <div class="content">
+            <!-- Profile Header Card -->
+            <div class="card profile-card">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div class="profile-avatar" id="dashboardAvatar" style="width: 60px; height: 60px; font-size: 24px;">
+                        🧑‍🌾
+                    </div>
+                    <div style="margin-left: 16px; flex: 1;">
+                        <div style="font-size: 20px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px;" id="dashboardProfileName">राम कुमार</div>
+                        <div style="font-size: 14px; color: var(--text-medium);" id="dashboardProfileLocation">रामपुर • 35 साल • 5 साल अनुभव</div>
+                    </div>
+                    <button style="background: var(--sky-blue); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="editProfile()">✏️ Edit</button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 16px;">
+                    <div style="text-align: center; padding: 12px; background: rgba(46, 125, 50, 0.1); border-radius: 12px;">
+                        <div style="font-size: 20px; margin-bottom: 4px;">👨‍👩‍👧‍👦</div>
+                        <div style="font-size: 12px; color: var(--text-medium);" id="dashboardFamily">4 सदस्य</div>
+                    </div>
+                    <div style="text-align: center; padding: 12px; background: rgba(46, 125, 50, 0.1); border-radius: 12px;">
+                        <div style="font-size: 20px; margin-bottom: 4px;">🚜</div>
+                        <div style="font-size: 12px; color: var(--text-medium);" id="dashboardExperience">5 साल</div>
+                    </div>
+                    <div style="text-align: center; padding: 12px; background: rgba(46, 125, 50, 0.1); border-radius: 12px;">
+                        <div style="font-size: 20px; margin-bottom: 4px;">📏</div>
+                        <div style="font-size: 12px; color: var(--text-medium);" id="dashboardLand">2 एकड़</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Status Card -->
+            <div class="card financial-card">
+                <h3 style="margin-bottom: 20px; font-size: 20px; font-weight: 700;">💰 आर्थिक स्थिति</h3>
+                <div class="metric-grid">
+                    <div class="metric">
+                        <div class="metric-label">नकद पैसे</div>
+                        <div class="metric-value" id="displayCurrentMoney">₹15K</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">बचत</div>
+                        <div class="metric-value" id="displaySavings">₹5K</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">कर्ज</div>
+                        <div class="metric-value" id="displayDebt">₹0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">कुल संपत्ति</div>
+                        <div class="metric-value" id="displayNetWorth">₹20K</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <h3 style="margin-bottom: 20px; font-size: 18px; font-weight: 700;">⚡ त्वरित कार्य</h3>
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="editProfile()">
+                        <div class="quick-action-icon">👤</div>
+                        <div class="quick-action-text">प्रोफाइल<br>एडिट करें</div>
+                    </div>
+                    <div class="quick-action" onclick="editBudget()">
+                        <div class="quick-action-icon">💰</div>
+                        <div class="quick-action-text">बजट<br>बदलें</div>
+                    </div>
+                    <div class="quick-action" onclick="showStats()">
+                        <div class="quick-action-icon">📊</div>
+                        <div class="quick-action-text">आंकड़े<br>देखें</div>
+                    </div>
+                    <div class="quick-action" onclick="resetAll()">
+                        <div class="quick-action-icon">🔄</div>
+                        <div class="quick-action-text">रीसेट<br>करें</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Personalized Tips -->
+            <div class="card" style="background: linear-gradient(135deg, #E8F5E8 0%, #F1F8E9 100%);">
+                <h3 style="margin-bottom: 20px; font-size: 18px; font-weight: 700; color: var(--primary-green);">💡 आपके लिए खास सुझाव</h3>
+                <div id="personalizedTips">
+                    <div style="margin-bottom: 12px; display: flex; align-items: start;">
+                        <span style="color: var(--primary-green); margin-right: 8px; font-size: 16px;">✓</span>
+                        <span style="font-weight: 500;">आपके अनुभव और बजट के अनुसार धान और मक्का दोनों लगा सकते हैं</span>
+                    </div>
+                    <div style="margin-bottom: 12px; display: flex; align-items: start;">
+                        <span style="color: var(--primary-green); margin-right: 8px; font-size: 16px;">✓</span>
+                        <span style="font-weight: 500;">4 सदस्यों के परिवार के लिए कम से कम ₹5000 आपातकाल फंड रखें</span>
+                    </div>
+                    <div style="display: flex; align-items: start;">
+                        <span style="color: var(--primary-green); margin-right: 8px; font-size: 16px;">✓</span>
+                        <span style="font-weight: 500;">2 एकड़ जमीन में मिश्रित खेती करके जोखिम कम करें</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Combined user data structure
+        let userData = {
+            profile: {
+                name: 'राम कुमार',
+                avatar: '🧑‍🌾',
+                location: 'रामपुर',
+                age: 35,
+                experience: 5,
+                familyMembers: 4,
+                children: 2,
+                createdAt: new Date().toISOString()
+            },
+            budget: {
+                money: 15000,
+                savings: 5000,
+                debt: 0,
+                landSize: 2,
+                initialBudget: 20000,
+                budgetHistory: []
+            }
+        };
+
+        // Budget presets
+        const budgetPresets = {
+            small: { money: 8000, savings: 2000, debt: 1000, land: 1 },
+            medium: { money: 15000, savings: 5000, debt: 0, land: 2 },
+            large: { money: 25000, savings: 8000, debt: 2000, land: 3 },
+            rich: { money: 40000, savings: 15000, debt: 5000, land: 5 }
+        };
+
+        function toggleAvatarSelector() {
+            const selector = document.getElementById('avatarSelector');
+            selector.style.display = selector.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function selectAvatar(emoji) {
+            // Remove selection from all avatars
+            document.querySelectorAll('.avatar-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Select clicked avatar
+            event.target.classList.add('selected');
+            
+            // Update main avatar
+            document.getElementById('selectedAvatar').textContent = emoji;
+            userData.profile.avatar = emoji;
+            
+            // Hide selector
+            document.getElementById('avatarSelector').style.display = 'none';
+            
+            updateCombinedSummary();
+            speak(`${getAvatarName(emoji)} अवतार चुना गया।`);
+        }
+
+        function getAvatarName(emoji) {
+            const names = {
+                '🧑‍🌾': 'किसान',
+                '👨‍🌾': 'पुरुष किसान',
+                '👩‍🌾': 'महिला किसान',
+                '🧔‍♂️': 'दाढ़ी वाले किसान',
+                '👴': 'बुजुर्ग किसान',
+                '👵': 'बुजुर्ग महिला किसान',
+                '🧑': 'युवा किसान',
+                '👦': 'नया किसान'
+            };
+            return names[emoji] || 'किसान';
+        }
+        function selectLocation(village, state) {
+            // Remove selection from all locations
+            document.querySelectorAll('.location-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Select clicked location
+            event.target.closest('.location-option').classList.add('selected');
+            
+            // Update custom location input
+            document.getElementById('customLocation').value = `${village}, ${state}`;
+            userData.profile.location = village;
+            
+            updateCombinedSummary();
+            speak(`${village}, ${state} चुना गया।`);
+        }
+
+        function setPreset(presetType) {
+            // Remove selection from all presets
+            document.querySelectorAll('.budget-preset').forEach(preset => {
+                preset.classList.remove('selected');
+            });
+            
+            // Select clicked preset
+            event.target.closest('.budget-preset').classList.add('selected');
+            
+            const preset = budgetPresets[presetType];
+            
+            // Update input fields
+            document.getElementById('currentMoney').value = preset.money;
+            document.getElementById('savings').value = preset.savings;
+            document.getElementById('debt').value = preset.debt;
+            document.getElementById('landSize').value = preset.land;
+            
+            // Update budget data
+            userData.budget.money = preset.money;
+            userData.budget.savings = preset.savings;
+            userData.budget.debt = preset.debt;
+            userData.budget.landSize = preset.land;
+            
+            // Update summary
+            updateCombinedSummary();
+            
+            // Voice feedback
+            speak(`${presetType === 'small' ? 'छोटा' : presetType === 'medium' ? 'मध्यम' : presetType === 'large' ? 'बड़ा' : 'समृद्ध'} किसान का बजट चुना गया।`);
+        }
+
+        function updateCombinedSummary() {
+            // Get current values
+            const name = document.getElementById('farmerName').value || 'राम कुमार';
+            const location = document.getElementById('customLocation').value || userData.profile.location;
+            const age = parseInt(document.getElementById('farmerAge').value) || 35;
+            const experience = parseInt(document.getElementById('farmingExperience').value) || 5;
+            const family = parseInt(document.getElementById('familyMembers').value) || 4;
+            const children = parseInt(document.getElementById('children').value) || 2;
+            const money = parseInt(document.getElementById('currentMoney').value) || 15000;
+            const savings = parseInt(document.getElementById('savings').value) || 5000;
+            const debt = parseInt(document.getElementById('debt').value) || 0;
+            const land = parseFloat(document.getElementById('landSize').value) || 2;
+            
+            const netWorth = money + savings - debt;
+            
+            // Update profile data
+            userData.profile.name = name;
+            userData.profile.location = location.split(',')[0];
+            userData.profile.age = age;
+            userData.profile.experience = experience;
+            userData.profile.familyMembers = family;
+            userData.profile.children = children;
+            
+            // Update budget data
+            userData.budget.money = money;
+            userData.budget.savings = savings;
+            userData.budget.debt = debt;
+            userData.budget.landSize = land;
+            userData.budget.initialBudget = netWorth;
+            
+            // Update summary display
+            document.getElementById('summaryName').textContent = name;
+            document.getElementById('summaryLocation').textContent = location.split(',')[0];
+            document.getElementById('summaryAge').textContent = `${age} साल`;
+            document.getElementById('summaryExperience').textContent = `${experience} साल`;
+            document.getElementById('summaryFamily').textContent = `${family} सदस्य`;
+            document.getElementById('totalMoney').textContent = `₹${money.toLocaleString()}`;
+            document.getElementById('totalSavings').textContent = `₹${savings.toLocaleString()}`;
+            document.getElementById('totalDebt').textContent = `₹${debt.toLocaleString()}`;
+            document.getElementById('totalLand').textContent = `${land} एकड़`;
+            document.getElementById('netWorth').textContent = `₹${netWorth.toLocaleString()}`;
+            
+            // Generate combined advice
+            let advice = '';
+            if (experience >= 10 && netWorth > 30000) {
+                advice = '💡 बहुत अनुभवी किसान हैं और बहुत अच्छी आर्थिक स्थिति है। उच्च जोखिम वाली फसलें भी लगा सकते हैं।';
+            } else if (experience >= 5 && netWorth > 15000) {
+                advice = '💡 अनुभवी किसान हैं और अच्छी आर्थिक स्थिति है। मध्यम जोखिम वाली फसलें लगा सकते हैं।';
+            } else if (experience >= 2 && netWorth > 8000) {
+                advice = '💡 कुछ अनुभव है और ठीक आर्थिक स्थिति है। सुरक्षित फसलों से शुरुआत करें।';
+            } else {
+                advice = '💡 नए किसान हैं या कम बजट है। कम जोखिम वाली फसलें चुनें और सीखते रहें।';
+            }
+            
+            document.getElementById('combinedAdvice').textContent = advice;
+        }
+        function proceedToBudgetSetup() {
+            // Validate profile data
+            if (!userData.profile.name.trim()) {
+                speak('कृपया अपना नाम भरें।');
+                return;
+            }
+            
+            if (!userData.profile.location.trim()) {
+                speak('कृपया अपना स्थान भरें।');
+                return;
+            }
+            
+            updateCombinedSummary();
+            showScreen('budgetSetup');
+            speak('अब अपना बजट सेट करें।');
+        }
+
+        function startGameWithCompleteSetup() {
+            // Final validation
+            if (userData.budget.money < 1000) {
+                speak('कम से कम ₹1000 तो होने चाहिए खेती शुरू करने के लिए।');
+                return;
+            }
+            
+            if (userData.budget.landSize < 0.5) {
+                speak('कम से कम आधा एकड़ जमीन तो चाहिए।');
+                return;
+            }
+            
+            // Save complete data to localStorage
+            localStorage.setItem('alicePisaCompleteData', JSON.stringify(userData));
+            
+            // Update dashboard
+            updateDashboard();
+            
+            // Show dashboard
+            showScreen('dashboard');
+            
+            const netWorth = userData.budget.money + userData.budget.savings - userData.budget.debt;
+            speak(`बहुत अच्छा ${userData.profile.name} जी! आपकी प्रोफाइल और बजट दोनों सेट हो गए। कुल संपत्ति ₹${netWorth.toLocaleString()} है। अब खेती शुरू करते हैं।`);
+        }
+
+        function updateDashboard() {
+            // Update profile section
+            document.getElementById('dashboardName').textContent = userData.profile.name;
+            document.getElementById('dashboardLocation').textContent = `${userData.profile.location} • खरीफ़ (Kharif) • वर्ष 1`;
+            document.getElementById('dashboardAvatar').textContent = userData.profile.avatar;
+            document.getElementById('dashboardProfileName').textContent = userData.profile.name;
+            document.getElementById('dashboardProfileLocation').textContent = `${userData.profile.location} • ${userData.profile.age} साल • ${userData.profile.experience} साल अनुभव`;
+            document.getElementById('dashboardFamily').textContent = `${userData.profile.familyMembers} सदस्य`;
+            document.getElementById('dashboardExperience').textContent = `${userData.profile.experience} साल`;
+            document.getElementById('dashboardLand').textContent = `${userData.budget.landSize} एकड़`;
+            
+            // Update financial section
+            document.getElementById('displayCurrentMoney').textContent = `₹${Math.round(userData.budget.money/1000)}K`;
+            document.getElementById('displaySavings').textContent = `₹${Math.round(userData.budget.savings/1000)}K`;
+            document.getElementById('displayDebt').textContent = `₹${Math.round(userData.budget.debt/1000)}K`;
+            
+            const netWorth = userData.budget.money + userData.budget.savings - userData.budget.debt;
+            document.getElementById('displayNetWorth').textContent = `₹${Math.round(netWorth/1000)}K`;
+            
+            updatePersonalizedTips();
+        }
+
+        function updatePersonalizedTips() {
+            const tips = [];
+            
+            // Experience and budget based tips
+            if (userData.profile.experience >= 5 && userData.budget.money > 15000) {
+                tips.push('आपके अनुभव और बजट के अनुसार धान और मक्का दोनों लगा सकते हैं');
+            } else if (userData.profile.experience < 3) {
+                tips.push('नए किसान हैं, पहले धान से शुरुआत करें');
+            } else {
+                tips.push('मध्यम अनुभव है, सुरक्षित फसलों पर फोकस करें');
+            }
+            
+            // Family-based tips
+            const emergencyFund = userData.profile.familyMembers * 1250;
+            tips.push(`${userData.profile.familyMembers} सदस्यों के परिवार के लिए कम से कम ₹${emergencyFund} आपातकाल फंड रखें`);
+            
+            // Land-based tips
+            if (userData.budget.landSize >= 3) {
+                tips.push(`${userData.budget.landSize} एकड़ जमीन में मिश्रित खेती करके जोखिम कम करें`);
+            } else if (userData.budget.landSize >= 1) {
+                tips.push(`${userData.budget.landSize} एकड़ जमीन में धान या मक्का लगाएं`);
+            } else {
+                tips.push('छोटी जमीन है, सब्जी उगाना बेहतर होगा');
+            }
+            
+            // Children-based tips
+            if (userData.profile.children > 0) {
+                tips.push('बच्चों की पढ़ाई के लिए अलग से बचत करें');
+            }
+            
+            // Age-based tips
+            if (userData.profile.age > 50) {
+                tips.push('स्वास्थ्य बीमा जरूर कराएं');
+            }
+            
+            const tipsContainer = document.getElementById('personalizedTips');
+            tipsContainer.innerHTML = tips.slice(0, 3).map(tip => `
+                <div style="margin-bottom: 12px; display: flex; align-items: start;">
+                    <span style="color: var(--primary-green); margin-right: 8px; font-size: 16px;">✓</span>
+                    <span style="font-weight: 500;">${tip}</span>
+                </div>
+            `).join('');
+        }
+        function editProfile() {
+            // Populate form with current data
+            document.getElementById('farmerName').value = userData.profile.name;
+            document.getElementById('customLocation').value = userData.profile.location;
+            document.getElementById('farmerAge').value = userData.profile.age;
+            document.getElementById('farmingExperience').value = userData.profile.experience;
+            document.getElementById('familyMembers').value = userData.profile.familyMembers;
+            document.getElementById('children').value = userData.profile.children;
+            document.getElementById('selectedAvatar').textContent = userData.profile.avatar;
+            
+            showScreen('profileSetup');
+            speak('प्रोफाइल एडिट मोड में खुल गया। बदलाव करके आगे बढ़ें।');
+        }
+
+        function editBudget() {
+            // Populate budget form with current data
+            document.getElementById('currentMoney').value = userData.budget.money;
+            document.getElementById('savings').value = userData.budget.savings;
+            document.getElementById('debt').value = userData.budget.debt;
+            document.getElementById('landSize').value = userData.budget.landSize;
+            
+            showScreen('budgetSetup');
+            speak('बजट एडिट मोड में खुल गया। बदलाव करके सेव करें।');
+        }
+
+        function showStats() {
+            const netWorth = userData.budget.money + userData.budget.savings - userData.budget.debt;
+            const createdDate = new Date(userData.profile.createdAt).toLocaleDateString('hi-IN');
+            
+            const stats = `📊 पूरे आंकड़े:\n`;
+            const report = `नाम: ${userData.profile.name}\nस्थान: ${userData.profile.location}\nउम्र: ${userData.profile.age} साल\nअनुभव: ${userData.profile.experience} साल\nपरिवार: ${userData.profile.familyMembers} सदस्य\nजमीन: ${userData.budget.landSize} एकड़\nकुल संपत्ति: ₹${netWorth.toLocaleString()}\nप्रोफाइल बनाई: ${createdDate}`;
+            
+            speak(stats + report);
+        }
+
+        function resetAll() {
+            if (confirm('क्या आप वाकई सब कुछ रीसेट करना चाहते हैं? सारी जानकारी मिट जाएगी।')) {
+                localStorage.removeItem('alicePisaCompleteData');
+                
+                // Reset to default values
+                userData = {
+                    profile: {
+                        name: 'राम कुमार',
+                        avatar: '🧑‍🌾',
+                        location: 'रामपुर',
+                        age: 35,
+                        experience: 5,
+                        familyMembers: 4,
+                        children: 2,
+                        createdAt: new Date().toISOString()
+                    },
+                    budget: {
+                        money: 15000,
+                        savings: 5000,
+                        debt: 0,
+                        landSize: 2,
+                        initialBudget: 20000,
+                        budgetHistory: []
+                    }
+                };
+                
+                showScreen('profileSetup');
+                speak('सब कुछ रीसेट हो गया। नई शुरुआत करें।');
+            }
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function speak(text) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 20px; margin-right: 8px;">🗣️</span>
+                    <span style="font-weight: 700;">Alice Pisa</span>
+                </div>
+                <div style="line-height: 1.4;">"${text}"</div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 4000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved data if exists
+            const savedData = localStorage.getItem('alicePisaCompleteData');
+            if (savedData) {
+                userData = JSON.parse(savedData);
+                updateDashboard();
+                showScreen('dashboard');
+                speak(`नमस्ते ${userData.profile.name} जी! आपकी पूरी जानकारी लोड हो गई है।`);
+            } else {
+                // Add input listeners for real-time updates
+                ['farmerName', 'customLocation', 'farmerAge', 'farmingExperience', 'familyMembers', 'children', 'currentMoney', 'savings', 'debt', 'landSize'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('input', updateCombinedSummary);
+                    }
+                });
+                
+                // Initial summary update
+                updateCombinedSummary();
+            }
+        });
+    </script>
+</body>
+</html>

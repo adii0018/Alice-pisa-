@@ -1,0 +1,56 @@
+name: alice_pisa
+description: Gamified Financial Literacy for Bharat - Farmer Persona Prototype
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  provider: ^6.1.1
+  
+  # Local Storage
+  sqflite: ^2.3.0
+  shared_preferences: ^2.2.2
+  
+  # Firebase
+  firebase_core: ^2.24.2
+  cloud_firestore: ^4.13.6
+  firebase_auth: ^4.15.3
+  
+  # Audio & Voice
+  flutter_tts: ^3.8.5
+  audioplayers: ^5.2.1
+  
+  # UI & Animation
+  lottie: ^2.7.0
+  flutter_svg: ^2.0.9
+  
+  # Utils
+  intl: ^0.18.1
+  uuid: ^4.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/audio/
+    - assets/data/
+    - assets/lottie/
+  
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700

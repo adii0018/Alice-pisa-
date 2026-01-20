@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Alice Pisa - Mobile Demo</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2E7D32">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F5F5F5;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .screen {
+            width: 100vw;
+            min-height: 100vh;
+            display: none;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .screen.active {
+            display: flex;
+        }
+        
+        .app-bar {
+            background: linear-gradient(135deg, #2E7D32, #66BB6A);
+            color: white;
+            padding: max(env(safe-area-inset-top), 20px) 20px 20px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .app-bar h1 {
+            font-size: clamp(20px, 5vw, 28px);
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .app-bar p {
+            font-size: clamp(12px, 3vw, 16px);
+            opacity: 0.9;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            padding-bottom: 100px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            border: 1px solid #E0E0E0;
+        }
+        
+        .financial-card {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+            color: white;
+            border: none;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .metric {
+            text-align: center;
+            background: rgba(255,255,255,0.15);
+            padding: 12px;
+            border-radius: 12px;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+        
+        .metric-value {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: bold;
+        }
+        
+        .progress-container {
+            margin-top: 16px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .stress-indicator {
+            position: absolute;
+            top: max(env(safe-area-inset-top), 20px);
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            animation: pulse 2s infinite;
+            z-index: 10;
+        }
+        
+        .stress-calm { background: #4CAF50; }
+        .stress-worried { background: #FFEB3B; }
+        .stress-stressed { background: #FF9800; }
+        .stress-desperate { background: #F44336; }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .quick-action {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .quick-action:active {
+            transform: scale(0.95);
+            background: #E8F5E8;
+            border-color: #2E7D32;
+        }
+        
+        .quick-action-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .quick-action-text {
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        
+        .crop-option {
+            border: 2px solid #E0E0E0;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .crop-option:active {
+            transform: scale(0.98);
+        }
+        
+        .crop-option.selected {
+            border-color: #2E7D32;
+            background: #E8F5E8;
+        }
+        
+        .crop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .crop-name {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .risk-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .risk-low { background: #4CAF50; color: white; }
+        .risk-medium { background: #FFEB3B; color: black; }
+        .risk-high { background: #F44336; color: white; }
+        
+        .crop-details {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .btn {
+            background: #2E7D32;
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 16px;
+            min-height: 56px;
+            transition: all 0.3s;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+            background: #1B5E20;
+        }
+        
+        .btn.secondary {
+            background: #666;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 16px;
+            padding-bottom: max(env(safe-area-inset-bottom), 16px);
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            background: #2E7D32;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            min-height: 48px;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .nav-btn.secondary {
+            background: #666;
+        }
+        
+        .event-card {
+            background: linear-gradient(135deg, #FF8F00, #FFB300);
+            color: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .event-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        
+        .event-description {
+            font-size: 14px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        
+        .event-choices {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .event-choice {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s;
+            min-height: 60px;
+        }
+        
+        .event-choice:active {
+            transform: scale(0.98);
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .choice-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .choice-subtitle {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .consequence-card {
+            background: #FFF3E0;
+            border: 2px solid #FFB300;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+        
+        .consequence-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #E65100;
+        }
+        
+        .consequence-text {
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+        
+        .learning-box {
+            background: #E8F5E8;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        
+        .learning-title {
+            font-weight: bold;
+            color: #2E7D32;
+            margin-bottom: 8px;
+        }
+        
+        .area-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #E0E0E0;
+            outline: none;
+            margin: 16px 0;
+        }
+        
+        .area-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #2E7D32;
+            cursor: pointer;
+        }
+        
+        .cost-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 4px 0;
+        }
+        
+        .cost-label {
+            font-size: 14px;
+        }
+        
+        .cost-value {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .cost-positive { color: #4CAF50; }
+        .cost-negative { color: #F44336; }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #E0E0E0;
+            border-top: 4px solid #2E7D32;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .splash-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .splash-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .splash-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2E7D32;
+            margin-bottom: 8px;
+        }
+        
+        .splash-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 360px) {
+            .content { padding: 12px; }
+            .card { padding: 16px; }
+            .quick-actions { gap: 8px; }
+            .quick-action { padding: 16px 12px; }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body { background: #121212; }
+            .card { background: #1E1E1E; color: white; border-color: #333; }
+            .crop-option { background: #1E1E1E; color: white; border-color: #333; }
+            .quick-action { background: #1E1E1E; color: white; border-color: #333; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div class="screen active" id="splash">
+        <div class="app-bar">
+            <h1>🌾 Alice Pisa</h1>
+            <p>खेती सीखें, जीवन संवारें</p>
+        </div>
+        <div class="splash-content">
+            <div class="splash-icon">🚜</div>
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 20px; color: #666;">तैयारी हो रही है...</p>
+        </div>
+        <div class="navigation">
+            <button class="nav-btn" onclick="showScreen('dashboard')">शुरू करें</button>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div class="screen" id="dashboard">
+        <div class="app-bar">
+            <h1>राम कुमार</h1>
+            <p>रामपुर • खरीफ़ (Kharif)</p>
+        </div>
+        <div class="stress-indicator stress-calm" id="stressIndicator">😊</div>
+        
+        <div class="content">
+            <!-- Financial Status Card -->
+            <div class="card financial-card">
+                <h3 style="margin-bottom: 16px;">💰 आर्थिक स्थिति</h3>
+                <div class="metric-grid">
+                    <div class="metric">
+                        <div class="metric-label">नकद पैसे</div>
+                        <div class="metric-value" id="currentMoney">₹15K</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">बचत</div>
+                        <div class="metric-value">₹5K</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">कर्ज</div>
+                        <div class="metric-value">₹2K</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">कुल संपत्ति</div>
+                        <div class="metric-value" id="totalWealth">₹18K</div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>आर्थिक स्वास्थ्य</span>
+                        <span id="healthPercent">75%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="healthBar" style="width: 75%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Season Progress Card -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px;">🌱 खरीफ़ मौसम</h3>
+                <p style="color: #666; margin-bottom: 12px;">वर्तमान चरण: योजना</p>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>मौसम की प्रगति</span>
+                        <span>40%</span>
+                    </div>
+                    <div class="progress-bar" style="background: #E0E0E0;">
+                        <div class="progress-fill" style="background: #2E7D32; width: 40%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px;">त्वरित कार्य</h3>
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="showScreen('planning')">
+                        <div class="quick-action-icon">📝</div>
+                        <div class="quick-action-text">योजना<br>बनाएं</div>
+                    </div>
+                    <div class="quick-action" onclick="showScreen('event')">
+                        <div class="quick-action-icon">📊</div>
+                        <div class="quick-action-text">इतिहास<br>देखें</div>
+                    </div>
+                    <div class="quick-action" onclick="vibrate()">
+                        <div class="quick-action-icon">🌤️</div>
+                        <div class="quick-action-text">मौसम<br>जांचें</div>
+                    </div>
+                    <div class="quick-action" onclick="vibrate()">
+                        <div class="quick-action-icon">🚨</div>
+                        <div class="quick-action-text">आपातकाल<br>सहायता</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px;">💡 सुझाव</h3>
+                <div style="margin-bottom: 8px;">✓ आपातकाल के लिए पैसे बचाएं</div>
+                <div style="margin-bottom: 8px;">✓ फसल बीमा कराना फायदेमंद हो सकता है</div>
+                <div>✓ मानसून पर निर्भर न रहें, सिंचाई की व्यवस्था करें</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Planning Screen -->
+    <div class="screen" id="planning">
+        <div class="app-bar">
+            <h1>मौसम की योजना</h1>
+            <p>खरीफ़ - मानसून का मौसम</p>
+        </div>
+        
+        <div class="content">
+            <!-- Available Money -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #666; font-size: 14px;">उपलब्ध पैसे</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #2E7D32;">₹15,000</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: #666; font-size: 12px;">बचत</div>
+                        <div style="font-size: 16px; font-weight: bold;">₹5K</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crop Selection -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px;">फसल चुनें</h3>
+                
+                <div class="crop-option selected" onclick="selectCrop(this, 'rice')">
+                    <div class="crop-header">
+                        <div class="crop-name">● धान (Rice)</div>
+                        <div class="risk-badge risk-low">कम जोखिम</div>
+                    </div>
+                    <div class="crop-details">निवेश: ₹8K • अनुमानित लाभ: ₹37K</div>
+                </div>
+                
+                <div class="crop-option" onclick="selectCrop(this, 'maize')">
+                    <div class="crop-header">
+                        <div class="crop-name">○ मक्का (Maize)</div>
+                        <div class="risk-badge risk-medium">मध्यम जोखिम</div>
+                    </div>
+                    <div class="crop-details">निवेश: ₹6K • अनुमानित लाभ: ₹39K</div>
+                </div>
+                
+                <div class="crop-option" onclick="selectCrop(this, 'cotton')">
+                    <div class="crop-header">
+                        <div class="crop-name">○ कपास (Cotton)</div>
+                        <div class="risk-badge risk-high">उच्च जोखिम</div>
+                    </div>
+                    <div class="crop-details">निवेश: ₹12K • अनुमानित लाभ: ₹32K</div>
+                </div>
+            </div>
+
+            <!-- Area Selection -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px;">कितना क्षेत्र?</h3>
+                <p style="font-size: 16px; font-weight: bold; color: #2E7D32; margin-bottom: 12px;" id="areaDisplay">1.5 एकड़ (कुल 2.0 एकड़ में से)</p>
+                <input type="range" min="0.5" max="2" step="0.1" value="1.5" class="area-slider" id="areaSlider" oninput="updateArea(this.value)">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666;">
+                    <span>0.5 एकड़</span>
+                    <span>2.0 एकड़</span>
+                </div>
+            </div>
+
+            <!-- Cost Calculation -->
+            <div class="card" style="background: #E8F5E8; border: 2px solid #4CAF50;" id="costCard">
+                <h3 style="margin-bottom: 16px; color: #2E7D32;">✅ लागत गणना</h3>
+                <div class="cost-row">
+                    <span class="cost-label">कुल निवेश:</span>
+                    <span class="cost-value cost-negative" id="totalCost">₹12,000</span>
+                </div>
+                <div class="cost-row">
+                    <span class="cost-label">अनुमानित आय:</span>
+                    <span class="cost-value cost-positive" id="expectedIncome">₹67,500</span>
+                </div>
+                <div class="cost-row">
+                    <span class="cost-label">अनुमानित लाभ:</span>
+                    <span class="cost-value cost-positive" id="expectedProfit">₹55,500</span>
+                </div>
+                <hr style="margin: 12px 0;">
+                <div class="cost-row">
+                    <span class="cost-label">बचेंगे:</span>
+                    <span class="cost-value cost-positive" id="remaining">₹3,000</span>
+                </div>
+            </div>
+
+            <!-- Insurance -->
+            <div class="card">
+                <h3 style="margin-bottom: 12px;">🛡️ फसल बीमा</h3>
+                <p style="color: #666; margin-bottom: 16px;">प्राकृतिक आपदा से फसल की सुरक्षा के लिए बीमा कराएं।</p>
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="checkbox" checked style="margin-right: 12px; transform: scale(1.5);" id="insuranceCheck">
+                    <span>हां, मैं फसल बीमा कराना चाहता हूं (₹500)</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn secondary" onclick="showScreen('dashboard')">वापस</button>
+            <button class="nav-btn" onclick="plantCrop()">🌾 बुआई करें ₹12,500</button>
+        </div>
+    </div>
+
+    <!-- Event Screen -->
+    <div class="screen" id="event">
+        <div class="app-bar">
+            <h1>⚠️ तत्काल ध्यान दें!</h1>
+            <p>फैसला लेने का समय</p>
+        </div>
+        
+        <div class="content">
+            <div class="event-card">
+                <div class="event-title">🌧️ सूखा (Drought)</div>
+                <div class="event-description">
+                    बारिश कम हुई है। फसल को पानी की जरूरत है। आपको तुरंत फैसला लेना होगा। गलत फैसले से फसल बर्बाद हो सकती है।
+                </div>
+                
+                <div class="event-choices">
+                    <button class="event-choice" onclick="makeChoice('water')">
+                        <div class="choice-title">💧 पानी खरीदें (₹2000)</div>
+                        <div class="choice-subtitle">"पानी खरीदने से फसल बच जाएगी लेकिन पैसे खर्च होंगे"</div>
+                    </button>
+                    
+                    <button class="event-choice" onclick="makeChoice('wait')">
+                        <div class="choice-title">⏳ बारिश का इंतजार करें</div>
+                        <div class="choice-subtitle">"बारिश का इंतजार करना जोखिम भरा है"</div>
+                    </button>
+                    
+                    <button class="event-choice" onclick="makeChoice('sell')">
+                        <div class="choice-title">💸 जल्दी बेच दें</div>
+                        <div class="choice-subtitle">"जल्दी बेचने से कम पैसे मिलेंगे"</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Consequence Display -->
+            <div class="consequence-card" id="consequenceCard" style="display: none;">
+                <div class="consequence-title">परिणाम</div>
+                <div class="consequence-text" id="consequenceText"></div>
+                <div class="learning-box">
+                    <div class="learning-title">सीख:</div>
+                    <div id="learningText"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn secondary" onclick="showScreen('planning')">वापस</button>
+            <button class="nav-btn" onclick="showScreen('dashboard')">डैशबोर्ड</button>
+        </div>
+    </div>
+
+    <script>
+        let currentCrop = 'rice';
+        let currentArea = 1.5;
+        let gameState = {
+            money: 15000,
+            savings: 5000,
+            debt: 2000,
+            stress: 0 // 0=calm, 1=worried, 2=stressed, 3=desperate
+        };
+
+        // Crop data
+        const crops = {
+            rice: { name: 'धान', cost: 8000, yield: 25, price: 1800, risk: 0.3 },
+            maize: { name: 'मक्का', cost: 6000, yield: 30, price: 1500, risk: 0.4 },
+            cotton: { name: 'कपास', cost: 12000, yield: 8, price: 5500, risk: 0.6 }
+        };
+
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show selected screen
+            document.getElementById(screenId).classList.add('active');
+            
+            // Vibrate on navigation
+            vibrate();
+            
+            // Simulate voice prompts
+            setTimeout(() => {
+                if (screenId === 'dashboard') {
+                    speak('राम जी, नमस्ते! खरीफ़ मौसम में आपका स्वागत है। आपकी आर्थिक स्थिति अच्छी है।');
+                } else if (screenId === 'planning') {
+                    speak('खरीफ़ मौसम की योजना बनाने का समय है। कौन सी फसल लगाना चाहते हैं?');
+                } else if (screenId === 'event') {
+                    speak('ध्यान दें! सूखा पड़ा है। फसल को पानी की जरूरत है। सावधानी से फैसला लें।');
+                }
+            }, 500);
+        }
+
+        function selectCrop(element, cropType) {
+            // Remove selection from all crops
+            document.querySelectorAll('.crop-option').forEach(crop => {
+                crop.classList.remove('selected');
+                const nameEl = crop.querySelector('.crop-name');
+                nameEl.textContent = nameEl.textContent.replace('●', '○');
+            });
+            
+            // Select clicked crop
+            element.classList.add('selected');
+            const nameEl = element.querySelector('.crop-name');
+            nameEl.textContent = nameEl.textContent.replace('○', '●');
+            
+            currentCrop = cropType;
+            updateCostCalculation();
+            
+            // Voice feedback
+            vibrate();
+            speak(`${crops[cropType].name} चुना गया। अच्छा विकल्प है।`);
+        }
+
+        function updateArea(value) {
+            currentArea = parseFloat(value);
+            document.getElementById('areaDisplay').textContent = `${value} एकड़ (कुल 2.0 एकड़ में से)`;
+            updateCostCalculation();
+        }
+
+        function updateCostCalculation() {
+            const crop = crops[currentCrop];
+            const totalCost = crop.cost * currentArea;
+            const insuranceCost = document.getElementById('insuranceCheck').checked ? 500 : 0;
+            const grandTotal = totalCost + insuranceCost;
+            const expectedIncome = crop.yield * crop.price * currentArea;
+            const expectedProfit = expectedIncome - totalCost;
+            const remaining = gameState.money - grandTotal;
+
+            document.getElementById('totalCost').textContent = `₹${totalCost.toLocaleString()}`;
+            document.getElementById('expectedIncome').textContent = `₹${expectedIncome.toLocaleString()}`;
+            document.getElementById('expectedProfit').textContent = `₹${expectedProfit.toLocaleString()}`;
+            document.getElementById('remaining').textContent = `₹${remaining.toLocaleString()}`;
+
+            // Update button text
+            const plantBtn = document.querySelector('.navigation .nav-btn:last-child');
+            plantBtn.textContent = `🌾 बुआई करें ₹${grandTotal.toLocaleString()}`;
+
+            // Update card color based on affordability
+            const costCard = document.getElementById('costCard');
+            if (remaining >= 0) {
+                costCard.style.background = '#E8F5E8';
+                costCard.style.borderColor = '#4CAF50';
+                plantBtn.disabled = false;
+            } else {
+                costCard.style.background = '#FFEBEE';
+                costCard.style.borderColor = '#F44336';
+                plantBtn.disabled = true;
+            }
+        }
+
+        function plantCrop() {
+            const crop = crops[currentCrop];
+            const totalCost = crop.cost * currentArea;
+            const insuranceCost = document.getElementById('insuranceCheck').checked ? 500 : 0;
+            const grandTotal = totalCost + insuranceCost;
+
+            if (gameState.money >= grandTotal) {
+                gameState.money -= grandTotal;
+                updateFinancialDisplay();
+                
+                vibrate();
+                speak(`${crop.name} की बुआई हो गई। अब फसल की देखभाल करें।`);
+                
+                setTimeout(() => {
+                    showScreen('event');
+                }, 2000);
+            } else {
+                speak('पैसे कम हैं। कम क्षेत्र चुनें या कर्ज लें।');
+            }
+        }
+
+        function makeChoice(choice) {
+            const consequenceCard = document.getElementById('consequenceCard');
+            const consequenceText = document.getElementById('consequenceText');
+            const learningText = document.getElementById('learningText');
+            
+            let consequence = '';
+            let learning = '';
+            let moneyChange = 0;
+            let stressChange = 0;
+            
+            switch(choice) {
+                case 'water':
+                    consequence = '✅ आपने पानी खरीदा। फसल बच गई लेकिन ₹2000 खर्च हुए। आपका तनाव थोड़ा बढ़ा।';
+                    learning = 'आपातकाल में निवेश करना सही था। बचत का महत्व समझें।';
+                    moneyChange = -2000;
+                    stressChange = 1;
+                    break;
+                case 'wait':
+                    consequence = '❌ बारिश नहीं आई। फसल का 60% नुकसान हुआ। आपका तनाव बहुत बढ़ गया।';
+                    learning = 'जोखिम लेना हमेशा सही नहीं होता। सुरक्षित विकल्प चुनें।';
+                    moneyChange = -5000;
+                    stressChange = 2;
+                    break;
+                case 'sell':
+                    consequence = '⚠️ आपने जल्दी बेच दिया। ₹3000 मिले लेकिन पूरा लाभ नहीं मिला।';
+                    learning = 'कभी-कभी नुकसान से बचना बेहतर होता है।';
+                    moneyChange = 3000;
+                    stressChange = 1;
+                    break;
+            }
+            
+            // Update game state
+            gameState.money += moneyChange;
+            gameState.stress = Math.min(3, Math.max(0, gameState.stress + stressChange));
+            
+            consequenceText.textContent = consequence;
+            learningText.textContent = learning;
+            consequenceCard.style.display = 'block';
+            
+            updateFinancialDisplay();
+            updateStressIndicator();
+            
+            // Voice feedback
+            vibrate();
+            setTimeout(() => {
+                if (choice === 'water') {
+                    speak('बहुत अच्छा! आपने सही फैसला लिया। फसल बच गई।');
+                } else if (choice === 'wait') {
+                    speak('सावधान! यह जोखिम भरा फैसला था। अगली बार सोच-समझकर फैसला लें।');
+                } else {
+                    speak('ठीक है। कम नुकसान हुआ। अगली बार बेहतर तैयारी करें।');
+                }
+            }, 1000);
+        }
+
+        function updateFinancialDisplay() {
+            document.getElementById('currentMoney').textContent = `₹${Math.round(gameState.money/1000)}K`;
+            const totalWealth = gameState.money + gameState.savings - gameState.debt;
+            document.getElementById('totalWealth').textContent = `₹${Math.round(totalWealth/1000)}K`;
+            
+            const healthPercent = Math.max(0, Math.min(100, (totalWealth / 20000) * 100));
+            document.getElementById('healthPercent').textContent = `${Math.round(healthPercent)}%`;
+            document.getElementById('healthBar').style.width = `${healthPercent}%`;
+        }
+
+        function updateStressIndicator() {
+            const indicator = document.getElementById('stressIndicator');
+            const stressClasses = ['stress-calm', 'stress-worried', 'stress-stressed', 'stress-desperate'];
+            const stressEmojis = ['😊', '😐', '😟', '😰'];
+            
+            indicator.className = `stress-indicator ${stressClasses[gameState.stress]}`;
+            indicator.textContent = stressEmojis[gameState.stress];
+        }
+
+        function vibrate() {
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+
+        function speak(text) {
+            // Create a more mobile-friendly notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                z-index: 1000;
+                max-width: 80%;
+                text-align: center;
+                font-size: 14px;
+            `;
+            notification.textContent = `🗣️ "${text}"`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCostCalculation();
+            
+            // Auto-start demo after 3 seconds
+            setTimeout(() => {
+                showScreen('dashboard');
+            }, 3000);
+            
+            // Add touch feedback to all interactive elements
+            document.querySelectorAll('button, .crop-option, .quick-action').forEach(el => {
+                el.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                });
+                el.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+        });
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>
